@@ -12,7 +12,10 @@ def send(arr):
         get_socket()
 
     b = arr.encode('ascii')
-    sock[0].sendall(b)
+    try:
+        sock[0].sendall(b)
+    except:
+        print('EXCEPTION')
 
 def receive():
     if len(sock) == 0:

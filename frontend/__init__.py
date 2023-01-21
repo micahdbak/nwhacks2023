@@ -1,6 +1,6 @@
 import os
 import atexit
-from . import backend
+from . import backend, index
 from flask import Flask, render_template, request;
 
 SECRET_KEY = 'GENERATE_ME_PLEASE'
@@ -24,21 +24,6 @@ def create_app():
         pass
 
     backend.get_socket()
-
-    @app.route('/hello', methods=['GET','POST'])
-    def hello():
-        data = 'Nothing.'
-
-        if request.method == 'POST':
-            json = request.get_json()
-            print('hello')
-            data = backend.transact('hello')
-            print('hello2')
-
-            return {
-                'link': '/hello'
-            }
-
-        return render_template('index.html', data=data)
+    index.index(app)
 
     return app
