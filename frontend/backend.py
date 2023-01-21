@@ -23,6 +23,8 @@ def receive():
     return r
 
 def transact(msg):
+    print('1')
     send(msg)
+    print('2')
 
     return receive()
