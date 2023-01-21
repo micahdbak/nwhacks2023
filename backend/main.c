@@ -23,7 +23,7 @@ int main(void)
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	// if could not create a file descriptor for the socket
-	if (socket_fd < 0)
+	if (server_fd < 0)
 	{
 		perror("socket()");
 
@@ -75,13 +75,17 @@ int main(void)
 
 	while (1)
 	{
+		printf("Start of loop\n");
+
 		valread = read(new_socket, buffer, 1024);
 
 		if (valread == 0)
 			break;
 
 		printf("%s\n", buffer);
+
 		send(new_socket, hello, strlen(hello), 0);
+
 		printf("Hello message sent\n");
 	}
 

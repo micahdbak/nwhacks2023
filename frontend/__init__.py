@@ -1,7 +1,7 @@
 import os
 import atexit
 from . import backend
-from flask import Flask, render_template;
+from flask import Flask, render_template, request;
 
 SECRET_KEY = 'GENERATE_ME_PLEASE'
 
@@ -27,8 +27,18 @@ def create_app():
 
     @app.route('/hello', methods=['GET','POST'])
     def hello():
-        if method == 'POST':
-            json = 
-        return render_template('index.html')
+        data = 'Nothing.'
+
+        if request.method == 'POST':
+            json = request.get_json()
+            print('hello')
+            data = backend.transact('hello')
+            print('hello2')
+
+            return {
+                'link': '/hello'
+            }
+
+        return render_template('index.html', data=data)
 
     return app
