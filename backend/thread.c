@@ -72,22 +72,17 @@ void delete_list (ll_t** list) {
 // Functions for Thread struct
 // ************************************
 
-thread* create_thread (char _content[1024], char _author[32], int _date[3]) {
+thread* create_thread (enum thread_type _type, char _content[2048], char _author[32], int _date[4]) {
     thread* thr = (thread*)malloc(sizeof(thread));
     thr->n = 0;
     thr->sub_threads = NULL;
+    thr->type = _type;
     thr->score = 0;
 
-    int i;
-    for (i = 0; _content[i] != '\0'; i++)
-        thr->content[i] = _content[i];
-    thr->content[i] = '\0';
+    strcpy (thr->content, _content);
+    strcpy (thr->author, _author);
 
-    for (i = 0; _author[i] != '\0'; i++)
-        thr->author[i] = _author[i];
-    thr->author[i] = '\0';
-
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
         thr->date[i] = _date[i];
 
     return thr;
@@ -173,7 +168,7 @@ int main () {
     char _content[2048] = "AUHEUFBEIE";
     char _author[32] = "WNIUFJFJWNEO";
 
-    thread* thr = create_thread (_content, _author, _date);
+    thread* thr = create_thread (2, _content, _author, _date);
 
     node_t* test = create_node (thr, NULL);
     delete_thread (&thr);
