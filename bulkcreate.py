@@ -16,7 +16,7 @@ rc = 3
 prompt = []
 f1.write("\n")
 #formatting line
-for i in range(0,5):
+for i in range(0,len(prompt)):
     text0 = openai.Completion.create(
         model="text-davinci-003",
         prompt= "create a reddit post with the prompt:"+prompt[i]+"and do not include title markers, body markers, placeholders and the name reddit",
