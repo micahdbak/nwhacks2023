@@ -19,7 +19,7 @@ int main(void)
 	    addrlen,    // length of the address datatype
 	    nbytes,     // number of bytes received from the client
 	    cont,       // whether or not the server should continue to accept connections
-	    c, i;
+	    c, i, j;
 	struct sockaddr_in address;  // address of the server socket
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
 	     cmd[5];
@@ -91,23 +91,8 @@ int main(void)
 			if (nbytes == 0)
 				break;
 
-			i = 0;
-			c = buffer[i++];
-
-			for (; c != '\0' && i < 4; c = buffer[i++])
-				cmd[i] = c;
-
-			/*
-			if (!isspace(c))
-			{
-				printf("Warning: Client message did not contain a valid command.\n"
-				       "Client message: %s\n", buffer);
-
-				send(client_fd, "nil", 4, 0);
-
-				continue;
-			}
-			*/
+			for (i = 0; buffer[i] != '\0' && i < 4; ++i)
+				cmd[i] = buffer[i];
 
 			cmd[i] = '\0';
 
