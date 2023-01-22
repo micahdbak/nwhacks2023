@@ -183,7 +183,7 @@ void save_thread (FILE *fptr, thread* thr, int depth) {
 int get_depth (FILE *fptr) {
     int depth = 0;
     int num = fgetc (fptr);
-
+    
     // get depth of entry, stored as decimal number before entry
     while (num != ' ' && num != EOF) {
         depth = depth * 10 + (num - '0');
@@ -227,12 +227,11 @@ thread* load_database () {
 
     while (fgetc(fptr) != EOF) {
         if ((c = getc(fptr)) == EOF)
-	    break;
-	else
-	    ungetc(c, fptr);
+            break;
+	    //ungetc(c, fptr);
 
         int depth = get_depth (fptr); // Get the depth from first entry in line
-
+        printf ("%d ", depth);
         // If depth indicates that this is a subpost of latest post -> change directory
         if (depth > cur_depth + 1) {
             cur_depth++;
@@ -252,6 +251,8 @@ thread* load_database () {
         // Fill in content and author from the line
         get_content (fptr, &content);
         get_author (fptr, &author);
+        if (strlen(content) == 0 && strlen(author) == 0)
+            continue;
 
         printf ("'%s' '%s'\n", content, author);
         
