@@ -90,7 +90,7 @@ void list_ll(ll_t *list, char *reply)
 
 			break;
 		case Folder:
-			sprintf(line, "%d %s %s\n", snode->thr->type, snode->thr->author, snode->thr->content);
+			sprintf(line, "%d %s %s %ld\n", snode->thr->type, snode->thr->author, snode->thr->content, snode->thr->epoch);
 
 			break;
 		}
@@ -291,18 +291,23 @@ int main(void)
 			{
 				strcpy(reply, "Goodbye.\n");
 				cont = 0;
+<<<<<<< HEAD
 			} 
 			else
+=======
+			}
+
+>>>>>>> 1d79d61 (Working on index page)
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
 				cmd_list(root, &buffer[i], reply);
-			else
+
 			
 			// view command -- view post content
 			if (strcmp(cmd, CMD_VIEW) == 0)
 				cmd_view(root, &buffer[i], reply);
-			else
+
 
 			// post command -- create a new post
 			if (strcmp(cmd, CMD_POST) == 0)
@@ -326,16 +331,19 @@ int main(void)
 					post->author[j] = '\0';
 				}
 			}
-			else
+
 
 			if (strcmp(cmd, CMD_RGST) == 0)
-				cmd_register ();
-			else
+				// requires proper handling of buffer
+				//cmd_register ();
+
 
 			if (strcmp(cmd, CMD_LGIN) == 0)
-				cmd_login ();
-			// print out the data sent from the client
+				// requires proper handling of buffer
+				//cmd_login ();
 
+
+			// print out the data sent from the client
 			printf("Replied:\n%s\n", reply);
 
 			// send a response to the client

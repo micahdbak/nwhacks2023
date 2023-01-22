@@ -6,7 +6,21 @@
 		<script src="{{ url_for('static', filename='index.js') }}"></script>
 	</head>
 	<body>
-		<button onclick="receive()">Button</button>
-		<p id="response">Nothing received just yet.</p>
+		<div class="page">
+			<div class="submit">
+				<div class="info">
+					<h1>Post to</h1>
+					<h2 id="path_preview">Root</h2>
+				</div>
+				<input id="1" type="text"></input>
+				<button onclick="post()">Message</button>
+			</div>
+			{% for thread in threads %}
+			<div class="thread">
+				<h1>{{ thread.content }}</h1>
+				<h2>Created by {{ thread.author }}. #{{ thread.date }}</h2>
+			</div>
+			{% endfor %}
+		</div>
 	</body>
 </html>
