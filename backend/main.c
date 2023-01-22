@@ -105,8 +105,15 @@ void cmd_list(thread *root, const char *path, char *reply)
 
 	node = node_at_path(root, path);
 
-	if (node == NULL || node->sub_threads == NULL)
+	if (node == NULL)
 		return;
+
+	if (node->sub_threads == NULL)
+	{
+		strcpy(reply, "empty");
+
+		return;
+	}
 
 	reply[0] = '\0';
 

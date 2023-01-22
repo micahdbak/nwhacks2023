@@ -4,9 +4,11 @@ body {
 	color: white;
 	font-family: sans-serif;
 }
-.thread {
+a {
+	display: inline-block;
+	color: white;
 }
-.thread .header {
+.thread {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -16,14 +18,20 @@ body {
 	background-color: #303038;
 	line-height: 0;
 }
-.thread .header h1 {
+.thread h1 {
 	font-weight: normal;
 	font-size: 14pt;
 }
-.thread .header h2 {
+.thread h2 {
 	font-weight: bold;
 	font-size: 14pt;
 	color: #808088;
+}
+.post {
+	margin-top: 8px;
+	border: 1px solid #505058;
+	padding: 16px;
+	background-color: #404048;
 }
 .submit {
 	margin: auto;

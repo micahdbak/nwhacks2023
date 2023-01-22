@@ -10,23 +10,25 @@
 			<div class="submit">
 				<div class="info">
 					<h1>Post to</h1>
-					<h2 id="path_preview">Root</h2>
+					<h2>{{ path }}</h2>
 				</div>
 				<input id="post_input" type="text"></input>
 				<button onclick="post()">Message</button>
 			</div>
 			{% for thread in threads %}
-			<div id="{{ thread.path }}" class="thread">
-				<div class="header">
-					<div>
-						<button onclick="open_thread(this.parentElement.id)">View</button>
-						<button onclick="select(this.parentElement.id)">Select</button>
-					</div>
-					<h1>{{ thread.content }}</h1>
-					<h2>{{ thread.author }} {{ thread.epoch }}</h2>
-				</div>
-				<div id="{{ thread.path }}:body" class="body">
-				</div>
+			{% if thread.type == 2 %}
+			<div class="thread">
+			{% else %}
+			<div class="post">
+			{% endif %}
+				<a href="{{ path }}/{{ thread.index }}">Open</a>
+				{% if thread.type == 2 %}
+				<h1>{{ thread.content }}</h1>
+				<h2>{{ thread.author }} {{ thread.epoch }}</h2>
+				{% else %}
+				<h1>{{ thread.author }}</h1>
+				<p>{{ thread.content }}</p>
+				{% endif %}
 			</div>
 			{% endfor %}
 		</div>
