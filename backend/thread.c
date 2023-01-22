@@ -170,7 +170,7 @@ int by_comments (const void* a, const void* b) {
 
 int main () {
     int _date[4] = {10, 1, 2, 1000};
-    char _content[1024] = "AUHEUFBEIE";
+    char _content[2048] = "AUHEUFBEIE";
     char _author[32] = "WNIUFJFJWNEO";
 
     thread* thr = create_thread (_content, _author, _date);

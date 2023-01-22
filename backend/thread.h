@@ -39,13 +39,13 @@ struct Thread {
     ll_t* sub_threads;  // Pointers to those subthreads
     enum thread_type type;
 
-    char content[1024];  // Content of the thread
+    char content[2048];  // Content of the thread
     char author[32];    // Author of the post
     int date[4];        // year/month/day/seconds since beginning of day
     int score;
 };
 
-thread* create_thread (char _content[1024], char _author[32], int _date[4]);
+thread* create_thread (char _content[2048], char _author[32], int _date[4]);
 void add_subthread (thread* thr, thread* sub_thr);
 
 void add_score (thread* thr, bool like);
