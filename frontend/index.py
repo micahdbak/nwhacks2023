@@ -49,7 +49,7 @@ def index(app):
         if request.method == 'POST':
             json = request.get_json()
 
-            print(f'Got message {json["msg"]}')
+            print(json['cmd'])
 
             return {
                 # Replies a string formatted to type~content~author~epoch
@@ -60,7 +60,7 @@ def index(app):
 
 # Converts replies from list command into the form of: type~content~author~epoch
 def format_reply (cmd):
-    reply = backend.transact(json["cmd"]).decode()
+    reply = backend.transact(cmd).decode()
     # Default is for Folders that come in defined form
     formatted = reply
 

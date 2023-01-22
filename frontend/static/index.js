@@ -1,11 +1,8 @@
-function post(form_id) {
-	// Dunno how, but extract content, author and epoch from post form
-	var content = extract_content (form_id);
-	var author  = extract_author  (form_id);
-	var epoch   = get_epoch (now);
-	
-	var data = {
-		cmd: "post " + content + "~" + author + "~" + epoch
+function post() {
+	input = document.getElementById('post_input').value;
+
+	data = {
+		content: input,
 	};
 
 	fetch(window.location.href, {
@@ -34,8 +31,12 @@ class Thread {
 		this.path = _path;
 	}
 	
+	/*
 	get type () {
 		return this.type;
+	}
+	set type (x) {
+		this.type = x;
 	}
 	
 	get content () {
@@ -53,23 +54,28 @@ class Thread {
 	get path () {
 		return this.path;
 	}
+	*/
 }
 
 // Converts a string of format type~content~author~epoch into thread object
 function string_to_thread (str, path) {
-	const parts = text.split ("~");
+	parts = str.split ("~");
 	
-	const thr = new Thread (parseInt(parts[0]), 
-							parts[1], parts[2], 
-							parseInt(parse[3]),
-							path);
+	console.log(str);
+
+	thr = new Thread (parseInt(parts[0]), 
+	                  parts[1], parts[2], 
+	                  parseInt(parts[3]),
+	                  path);
 	
+	console.log(thr);
+
 	return thr;
 }
 
 // Retrieves the threads from requested directory
 function load_path (path) {
-	var data = {
+	data = {
 		// FYI: the full path to the directory intended to be listed will be provided
 		cmd: 'list ' + path
 	};
@@ -95,13 +101,16 @@ function load_path (path) {
 				// If request failed - return empty array
 				if (response.reply == "failure")
 					return [];
+
 				// Convert given response into array of threads
 				const lines = response.reply.split("\n");
-				
-				for (var line : lines) {
-					threads.push (string_to_thread (line), full_path);
+
+				for (line in lines) {
+					threads.push (string_to_thread (line), path);
 				}
 			});
+
+			console.log('OK.')
 		}
 		else {
 			console.log('Couldn\'t send JSON to server.');
@@ -116,10 +125,15 @@ function load_path (path) {
 
 function open_thread (path) {
 	threads = load_path(path);
+
+	console.log(threads)
+
 	body = document.getElementById(path + ':body');
 
-	for (thread : threads)
+	for (thread in threads)
 	{
+		console.log(thread);
+
 		div = document.createElement('div');
 		div.class = 'thread';
 
@@ -127,8 +141,8 @@ function open_thread (path) {
 		header.class = 'header';
 
 		buttons = document.createElement('div');
-		buttons.innerHTML += "<button onclick="open_thread(this.parent().attr('id'))">View</button>\n"
-		                     "<button onclick="select(this.parent().attr('id'))">Select</button>";
+		buttons.innerHTML += "<button onclick=\"open_thread(this.parent().attr('id'))\">View</button>\n"
+		                     "<button onclick=\"select(this.parent().attr('id'))\">Select</button>";
 
 		header.appendChild(buttons);
 
