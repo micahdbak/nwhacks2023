@@ -1,15 +1,19 @@
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#include "thread.h"
 
 #define PORT      8080
 #define NCLIENTS  16
 
 #define CMD_STOP  "stop"
+#define CMD_LIST  "list"
 
 int main(void)
 {
@@ -19,10 +23,16 @@ int main(void)
 	    addrlen,    // length of the address datatype
 	    nbytes,     // number of bytes received from the client
 	    cont,       // whether or not the server should continue to accept connections
-	    c, i, j;
+	    i;
 	struct sockaddr_in address;  // address of the server socket
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
 	     cmd[5];
+	thread *root;
+
+	int date_tmp[4] = { 2023, 1, 21, 0 };
+
+	// allocate the root thread
+	root = create_thread(Folder, "Root", "admin", date_tmp);
 
 	sockopt = 1;
 	addrlen = sizeof(struct sockaddr_in);
@@ -98,9 +108,22 @@ int main(void)
 
 			printf("Got command %s\n", cmd);
 
+			// skip space between the command and the command arguments
+			for (; isspace(buffer[i]); ++i)
+				;
+
+
 			// stop command -- stop backend
 			if (strcmp(cmd, CMD_STOP) == 0)
 				cont = 0;
+
+
+			// list command -- list posts under a certain path
+			if (strcmp(cmd, CMD_LIST) == 0)
+			{
+				
+			}
+
 
 			// print out the data sent from the client
 			printf("Received: %s\n", buffer);
