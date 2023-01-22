@@ -3,7 +3,7 @@ import openai
 import backend
 import time
 import random
-openai.api_key = "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"
+openai.api_key = "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"
 
 content = openai.Completion.create(
     model="text-davinci-003",
