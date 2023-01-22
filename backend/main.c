@@ -101,10 +101,14 @@ void cmd_list(thread *root, const char *path, char *reply)
 {
 	thread *node;
 
+	printf("Test\n");
 	node = node_at_path(root, path);
+	printf("Test\n");
 
 	if (node == NULL || node->sub_threads == NULL)
 		return;
+
+	printf("Test\n");
 
 	reply[0] = '\0';
 
@@ -129,7 +133,13 @@ thread *cmd_post(thread *root, const char *path, char *reply)
 
 	node = node_at_path(root, path);
 
-	post = create_thread(Post, "", 
+	if (node == NULL)
+		return NULL;
+
+	post = create_thread(Post, "", "", node);
+	add_subthread(node, post);
+
+	return post;
 }
 
 int main(void)
@@ -140,7 +150,7 @@ int main(void)
 	    addrlen,    // length of the address datatype
 	    nbytes,     // number of bytes received from the client
 	    cont,       // whether or not the server should continue to accept connections
-	    i;
+	    i, j;
 	struct sockaddr_in address;  // address of the server socket
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
 	     cmd[5],
@@ -174,12 +184,13 @@ int main(void)
 	add_subthread(subth1, subth5);
 	add_subthread(subth1, subth6);
 
-	add_subthread(subth4, post1);*/
+	add_subthread(subth4, post1);
 
-	thread* root = load_database ();
-	if (root == NULL)
-		printf("NULL\n");
-	printf("%s\n", root->content);
+	save_posts(root);
+
+	exit(0);*/
+
+	thread *root = load_database ();
 
 	// CMPT/Hello
 
@@ -288,8 +299,17 @@ int main(void)
 				thread *post;
 
 				post = cmd_post(root, &buffer[i], reply);
-				send(client_fd, reply, strlen(reply, 0));
-				nbytes = read(client_fd, buffer, 1024);
+
+				for (; isspace(buffer[i]); ++i)
+					;
+
+				for (j = 0; buffer[i] != '\0'; ++i)
+					post->author[j++] = buffer[i];
+
+				post->author[j] = '\0';
+
+				send(client_fd, reply, strlen(reply), 0);
+				nbytes = read(client_fd, &buffer[i], 1024);
 
 				if (nbytes == 1024)
 					buffer[1023] = '\0';
