@@ -49,12 +49,7 @@ struct Thread {
 
     char content[1024];  // Content of the thread
     char author[32];     // Author of the post
-<<<<<<< HEAD
-    long long int epoch; // Epoch time for current post
-=======
-    int date[4];         // year/month/day/seconds since beginning of day
-    time_t id;           // epoch id of the thread
->>>>>>> 0c3ac1c (2)
+    time_t epoch;        // Epoch time for current post
     int score;           // Essentially reddit karma
 };
 

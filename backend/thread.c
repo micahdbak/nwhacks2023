@@ -102,7 +102,7 @@ void add_score (thread* thr, bool like) {
 
 ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*)) {
     if (thr->sub_threads == NULL)
-        return;
+        return NULL;
 
     ll_t* copy = deep_copy (thr->sub_threads);
     qsort (copy, thr->n, sizeof(node_t), cmpfunc);
