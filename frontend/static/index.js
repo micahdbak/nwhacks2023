@@ -64,12 +64,10 @@ function string_to_thread (var str, var path) {
 }
 
 // Retrieves the threads from requested directory
-function load_path (var path, var index) {
-	var full_path = "list " + path + "/" + index;
-	
+function load_path (var path) {
 	var data = {
-		// Command for python socket to run
-		cmd: 'list ' + full_path
+		// FYI: the full path to the directory intended to be listed will be provided
+		cmd: 'list ' + path
 	};
 
 	console.log(window.location.href)
@@ -110,4 +108,46 @@ function load_path (var path, var index) {
 	});
 	
 	return threads;
+}
+
+function open_thread (var path) {
+	threads = load_path(path);
+	body = document.getElementById(path + ':body');
+
+	for (thread : threads)
+	{
+		div = document.createElement('div');
+		div.class = 'thread';
+
+		header = document.createElement('div');
+		header.class = 'header';
+
+		buttons = document.createElement('div');
+		buttons.innerHTML += "<button onclick="open_thread(this.parent().attr('id'))">View</button>\n"
+		                     "<button onclick="select(this.parent().attr('id'))">Select</button>";
+
+		header.appendChild(buttons);
+
+		h1 = document.createElement('h1');
+		h1.innerHTML = thread.content;
+		
+		header.appendChild(h1);
+
+		h2 = document.createElement('h2');
+		h2.innerHTML = thread.author + ' ' + thread.epoch;
+
+		header.appendChild(h2);
+
+		div.appendChild(header);
+
+		div_body = document.createElement('div');
+		div_body.class = 'body';
+		div_body.id = thread.path + ':body';
+
+		div.appendChild(div_body);
+
+		div.id = thread.path;
+
+		body.appendChild(div);
+	}
 }
