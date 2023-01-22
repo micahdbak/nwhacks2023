@@ -6,12 +6,20 @@ def index(app):
     def route_index():
         if request.method == 'POST':
             json = request.get_json()
-            data = backend.transact('list')
-            data = backend.transact('list CMPT')
-            data = backend.transact('list CMPT/Hello')
-            data = backend.transact('view CMPT/Hello/100')
+            print(backend.transact('list').decode())
+            print(backend.transact('list CMPT').decode())
+            post = backend.transact('list CMPT/Hello').decode()
+            print(post)
 
-            print (data)
+            id = (post.split(' '))[2].replace("\n", "")
+
+            print(backend.transact(f'view CMPT/Hello/{id}').decode())
+
+            id = (backend.transact('post CMPT/Hello micah').decode())
+            print(id)
+            print(backend.transact('Hello, world! This is the post content for my post.').decode())
+
+            print(backend.transact(f'view CMPT/Hello/{id}').decode())
 
             return {
                 'link': '/index.html'
