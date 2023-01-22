@@ -6,12 +6,10 @@ def index(app):
     def route_index():
         if request.method == 'POST':
             json = request.get_json()
-            print('hello')
-            data = backend.transact('hello')
-            print('hello2')
+            data = backend.transact('stop')
 
             return {
-                'link': '/hello'
+                'link': '/index.html'
             }
 
         return render_template('index.html')

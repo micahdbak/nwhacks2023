@@ -4,20 +4,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define PORT      8080
-#define NCLIENTS  1
+#define NCLIENTS  16
+
+#define CMD_STOP  "stop"
 
 int main(void)
 {
-	int server_fd,
-	    new_socket,
-	    valread,
-	    opt = 1,
-	    addrlen = sizeof(struct sockaddr_in);
-	struct sockaddr_in address;
-	char buffer[1024] = { 0 },
-	     *hello = "Hello from server";
+	int server_fd,  // file descriptor to the server socket
+	    client_fd,  // file descriptor to the currently considered client socket
+	    sockopt,    // socket options
+	    addrlen,    // length of the address datatype
+	    nbytes,     // number of bytes received from the client
+	    cont,       // whether or not the server should continue to accept connections
+	    c, i;
+	struct sockaddr_in address;  // address of the server socket
+	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
+	     cmd[5];
+
+	sockopt = 1;
+	addrlen = sizeof(struct sockaddr_in);
 
 	// create socket file descriptor
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -32,8 +40,8 @@ int main(void)
 
 	// set connection settings
 	if (setsockopt(server_fd, SOL_SOCKET,
-	               SO_REUSEADDR, &opt,
-	               sizeof(opt)))
+	               SO_REUSEADDR, &sockopt,
+	               sizeof(sockopt)))
 	{
 		perror("setsockopt()");
 
@@ -57,39 +65,68 @@ int main(void)
 	// set how many clients can connect to the port
 	if (listen(server_fd, NCLIENTS) < 0)
 	{
-		perror("listen");
+		perror("listen()");
 
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Server started\n");
+	printf("Backend started.\n");
 
-	if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0)
+	for (cont = 1; cont;)
 	{
-		perror("accept");
+		if ((client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0)
+		{
+			perror("accept()");
 
-		exit(EXIT_FAILURE);
+			exit(EXIT_FAILURE);
+		}
+
+		printf("Accepted a connection.\n");
+
+		for (;;)
+		{
+			nbytes = read(client_fd, buffer, 1024);
+
+			// no data was read; connection was probably closed
+			if (nbytes == 0)
+				break;
+
+			i = 0;
+			c = buffer[i++];
+
+			for (; c != '\0' && i < 4; c = buffer[i++])
+				cmd[i] = c;
+
+			/*
+			if (!isspace(c))
+			{
+				printf("Warning: Client message did not contain a valid command.\n"
+				       "Client message: %s\n", buffer);
+
+				send(client_fd, "nil", 4, 0);
+
+				continue;
+			}
+			*/
+
+			cmd[i] = '\0';
+
+			printf("Got command %s\n", cmd);
+
+			// stop command -- stop backend
+			if (strcmp(cmd, CMD_STOP) == 0)
+				cont = 0;
+
+			// print out the data sent from the client
+			printf("Received: %s\n", buffer);
+
+			// send a response to the client
+			send(client_fd, "nil", 4, 0);
+		}
+
+		close(client_fd);
 	}
 
-	printf("Connection made\n");
-
-	while (1)
-	{
-		printf("Start of loop\n");
-
-		valread = read(new_socket, buffer, 1024);
-
-		if (valread == 0)
-			break;
-
-		printf("%s\n", buffer);
-
-		send(new_socket, hello, strlen(hello), 0);
-
-		printf("Hello message sent\n");
-	}
-
-	close(new_socket);
 	shutdown(server_fd, SHUT_RDWR);
 
 	return 0;
