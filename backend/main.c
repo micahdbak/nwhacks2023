@@ -25,7 +25,7 @@ thread *node_at_path(thread *node, const char *path)
 
 	for (i = 0; path[i] != '\0' && !isspace(path[i]); ++i)
 	{
-		for (j = i; path[i] != '/' && path[i] != '\0'; ++i)
+		for (j = i; path[i] != '/' && path[i] != '\0' && !isspace(path[i]); ++i)
 			label[i - j] = path[i];
 
 		label[i - j] = '\0';
@@ -101,14 +101,10 @@ void cmd_list(thread *root, const char *path, char *reply)
 {
 	thread *node;
 
-	printf("Test\n");
 	node = node_at_path(root, path);
-	printf("Test\n");
 
 	if (node == NULL || node->sub_threads == NULL)
 		return;
-
-	printf("Test\n");
 
 	reply[0] = '\0';
 
@@ -137,7 +133,14 @@ thread *cmd_post(thread *root, const char *path, char *reply)
 		return NULL;
 
 	post = create_thread(Post, "", "", node);
+
+	if (post == NULL)
+		return NULL;
+
 	add_subthread(node, post);
+
+	// store the epoch of this post into the reply
+	sprintf(reply, "%ld", post->epoch);
 
 	return post;
 }
@@ -152,45 +155,12 @@ int main(void)
 	    cont,       // whether or not the server should continue to accept connections
 	    i, j;
 	struct sockaddr_in address;  // address of the server socket
-	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
+	char buffer[1025] = { 0 },   // buffer to hold the bytes received from the client
 	     cmd[5],
-	     reply[1024];
-	/*thread *root,
-	       *subth1,
-	       *subth2,
-	       *subth3,
-	       *subth4,
-	       *subth5,
-	       *subth6,
-	       *post1;
+	     reply[1025];
+	thread *root, *post;
 
-	// allocate the root thread
-	root = create_thread(Folder, "Root", "admin", NULL);
-
-	subth1 = create_thread(Folder, "CMPT", "micah", root);
-	subth2 = create_thread(Folder, "MATH", "micah", root);
-	subth3 = create_thread(Folder, "MACM", "micah", root);
-	subth4 = create_thread(Folder, "Hello", "micah", subth1);
-	subth5 = create_thread(Folder, "World", "micah", subth1);
-	subth6 = create_thread(Folder, "Goodbye", "micah", subth1);
-	post1 = create_thread(Post, "Hello, world! This is my first ever post.", "micah", subth4);
-	post1->epoch = 100;
-
-	add_subthread(root, subth1);
-	add_subthread(root, subth2);
-	add_subthread(root, subth3);
-
-	add_subthread(subth1, subth4);
-	add_subthread(subth1, subth5);
-	add_subthread(subth1, subth6);
-
-	add_subthread(subth4, post1);
-
-	save_posts(root);
-
-	exit(0);*/
-
-	thread *root = load_database ();
+	root = load_database();
 
 	// CMPT/Hello
 
@@ -242,7 +212,7 @@ int main(void)
 
 	printf("Backend started.\n");
 
-	for (cont = 1; cont;)
+	for (cont = 1, post = NULL; cont;)
 	{
 		if ((client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0)
 		{
@@ -258,9 +228,26 @@ int main(void)
 			nbytes = read(client_fd, buffer, 1024);
 			buffer[nbytes] = '\0';
 
+			printf("%s\n", buffer);
+
 			// no data was read; connection was probably closed
 			if (nbytes == 0)
 				break;
+
+			// fill content of post
+			if (post != NULL)
+			{
+				strcpy(post->content, buffer);
+				strcpy(reply, "success");
+
+				printf("Replied:\n%s\n", reply);
+
+				post = NULL;
+
+				send(client_fd, reply, strlen(reply), 0);
+
+				continue;
+			}
 
 			for (i = 0; i < 4; ++i)
 				cmd[i] = buffer[i];
@@ -272,7 +259,7 @@ int main(void)
 				;
 
 			// default reply is 'fail'
-			strcpy(reply, "fail");
+			strcpy(reply, "failure");
 
 
 			// stop command -- stop backend
@@ -280,12 +267,41 @@ int main(void)
 			{
 				strcpy(reply, "Goodbye.\n");
 				cont = 0;
-			}
+			} else
 
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
 				cmd_list(root, &buffer[i], reply);
+			else
+			
+			// view command -- view post content
+			if (strcmp(cmd, CMD_VIEW) == 0)
+				cmd_view(root, &buffer[i], reply);
+			else
+
+			// post command -- create a new post
+			if (strcmp(cmd, CMD_POST) == 0)
+			{
+				post = cmd_post(root, &buffer[i], reply);
+
+				if (post != NULL)
+				{
+					// skip the path
+					for (; !isspace(buffer[i]); ++i)
+						;
+
+					// skip the space separating path and author
+					for (; isspace(buffer[i]); ++i)
+						;
+
+					// read the author
+					for (j = 0; buffer[i] != '\0'; ++i)
+						post->author[j++] = buffer[i];
+
+					post->author[j] = '\0';
+				}
+			}
 
 			
 			// view command -- view post content
@@ -321,7 +337,7 @@ int main(void)
 
 
 			// print out the data sent from the client
-			printf("Received: %s\n", buffer);
+
 			printf("Replied:\n%s\n", reply);
 
 			// send a response to the client

@@ -9,7 +9,7 @@
 
 #include "thread.h"
 
-#define FILENAME "database.txt"
+#define FILENAME_DATA "database.txt"
 
 enum thread_type {Comment, Post, Folder};
 

@@ -158,7 +158,7 @@ int by_comments (const void* a, const void* b) {
 
 void save_posts (thread* root) {
     FILE *fptr;
-    fptr = fopen (FILENAME, "w");
+    fptr = fopen (FILENAME_DATA, "w");
 
     if (fptr != NULL) {
         save_thread (fptr, root, 0);        
@@ -217,8 +217,8 @@ void get_author (FILE *fptr, char (*author)[32]) {
 
 thread* load_database () {
     FILE *fptr;
-    fptr = fopen (FILENAME, "r");
-    // If file doesn't exist
+    fptr = fopen (FILENAME_DATA, "r");
+    // If file doesn't exist 
     if (fptr == NULL)
         return NULL;
 
@@ -248,7 +248,7 @@ thread* load_database () {
         enum thread_type type = (enum thread_type)(fgetc(fptr) - '0');
         fgetc(fptr);   // Skip the ~ divider character
         char content[1024], author[32];
-        
+       
         // Fill in content and author from the line
         get_content (fptr, &content);
         get_author (fptr, &author);
@@ -291,6 +291,16 @@ thread* load_database () {
     char _content3[1024] = "Sam pidor, gandon vonyuchiy";
     char _author3[32] = "Pasha Tehnik";
     thr = create_thread (Post, _content3, _author3, NULL);
+    add_subthread (root->sub_threads->head->thr, thr);
+
+    char _content4[1024] = "CMPT";
+    char _author4[32] = "Admin";
+    thr = create_thread (Folder, _content4, _author4, NULL);
+    add_subthread (root, thr);
+
+    char _content5[1024] = "Hello";
+    char _author5[32] = "Micah";
+    thr = create_thread (Post, _content5, _author5, NULL);
     add_subthread (root->sub_threads->head->thr, thr);
 
     save_posts (root);
