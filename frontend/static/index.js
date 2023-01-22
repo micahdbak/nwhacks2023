@@ -1,7 +1,11 @@
-function post() {
+function post(var form_id) {
+	// Dunno how, but extract content, author and epoch from post form
+	var content = extract_content (form_id);
+	var author  = extract_author  (form_id);
+	var epoch   = get_epoch (now);
+	
 	var data = {
-		type: "post",
-		cmd: document.getElementById("1").value
+		cmd: "post " + content + "~" + author + "~" + epoch
 	};
 
 	fetch(window.location.href, {
