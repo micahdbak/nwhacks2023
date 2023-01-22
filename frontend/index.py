@@ -6,7 +6,9 @@ def index(app):
     def route_index():
         if request.method == 'POST':
             json = request.get_json()
+            data = backend.transact('list')
             data = backend.transact('list CMPT')
+            data = backend.transact('list CMPT/Hello')
 
             return {
                 'link': '/index.html'

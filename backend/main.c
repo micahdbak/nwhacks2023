@@ -14,6 +14,61 @@
 
 #define CMD_STOP  "stop"
 #define CMD_LIST  "list"
+#define CMD_VIEW  "view"
+
+thread *node_at_path(thread *node, const char *path)
+{
+	char label[256];
+	int i, j;
+	node_t *snode;
+
+	for (i = 0; path[i] != '\0'; ++i)
+	{
+		for (j = i; path[i] != '/' && path[i] != '\0'; ++i)
+			label[i - j] = path[i];
+
+		label[i - j] = '\0';
+
+		for (j = 0; label[j] != '\0'; ++j)
+			if (!isdigit(label[j]))
+				break;
+
+		for (snode = node->sub_threads->head; snode != NULL; snode = snode->next)
+		{
+			if (snode->thr->type == Comment || snode->thr->type == Post)
+			{
+				if (label[j] == '\0')
+					if (snode->thr->epoch == atol(label))
+					{
+						node = snode->thr;
+
+						break;
+					}
+			} else { // Folder
+				if (strcmp(snode->thr->content, label) == 0)
+				{
+					node = snode->thr;
+
+					break;
+				}
+			}
+		}
+
+		// could not match this path to a thread path
+		if (snode == NULL)
+			return NULL;
+
+		// continue if there are more subdirectories
+		if (path[i] == '/')
+			continue;
+
+		// path[i] is '\0'.
+		// decrement (i) so the loop check breaks
+		--i;
+	}
+
+	return node;
+}
 
 void list_ll(ll_t *list, char *reply)
 {
@@ -41,66 +96,30 @@ void list_ll(ll_t *list, char *reply)
 	}
 }
 
-void cmd_list(thread *node, const char *path, char *reply)
+void cmd_list(thread *root, const char *path, char *reply)
 {
-	char label[256];
-	node_t *snode;
-	int i, j;
+	thread *node;
 
-	if (path[0] == '\0')
-		goto root_jump;
+	node = node_at_path(root, path);
 
-	for (i = 0; path[i] != '\0'; ++i)
-	{
-		for (j = i; path[i] != '/' && path[i] != '\0'; ++i)
-			label[i - j] = path[i];
+	if (node == NULL || node->sub_threads == NULL)
+		return;
 
-		label[i - j] = '\0';
+	reply[0] = '\0';
 
-		printf("Got label %s\n", label);
+	list_ll(node->sub_threads, reply);
+}
 
-		for (j = 0; label[j] != '\0'; ++j)
-			if (!isdigit(label[j]))
-				break;
+void cmd_view(thread *root, const char *path, char *reply)
+{
+	thread *node;
 
-		for (snode = node->sub_threads->head; snode != NULL; snode = snode->next)
-		{
-			if (snode->thr->type == Comment || snode->thr->type == Post)
-			{
-				if (label[j] == '\0')
-					if (snode->thr->epoch == atol(label))
-					{
-						node = snode->thr;
+	node = node_at_path(root, path);
 
-						break;
-					}
-			} else { // Folder
-				if (strcmp(snode->thr->content, label) == 0)
-				{
-					node = snode->thr;
+	if (node == NULL || node->type != Post)
+		return;
 
-					break;
-				}
-			}
-		}
-
-		// continue if there are more subdirectories
-		if (path[i] == '/')
-			continue;
-
-		// path[i] is '\0'.
-		// decrement (i) so the loop check breaks
-		--i;
-
-	root_jump:
-		reply[0] = '\0';
-
-		if (node->sub_threads == NULL)
-			break;
-
-		list_ll(node->sub_threads, reply);
-		printf("The reply is:\n%s", reply);
-	}
+	strcpy(reply, node->content);
 }
 
 int main(void)
@@ -122,7 +141,8 @@ int main(void)
 	       *subth3,
 	       *subth4,
 	       *subth5,
-	       *subth6;
+	       *subth6,
+	       *post1;
 
 	// allocate the root thread
 	root = create_thread(Folder, "Root", "admin");
@@ -133,13 +153,19 @@ int main(void)
 	subth4 = create_thread(Folder, "Hello", "micah");
 	subth5 = create_thread(Folder, "World", "micah");
 	subth6 = create_thread(Folder, "Goodbye", "micah");
+	post1 = create_thread(Post, "Hello, world! This is my first ever post.", "micah");
 
 	add_subthread(root, subth1);
 	add_subthread(root, subth2);
 	add_subthread(root, subth3);
+
 	add_subthread(subth1, subth4);
 	add_subthread(subth1, subth5);
 	add_subthread(subth1, subth6);
+
+	add_subthread(subth4, post1);
+
+	// CMPT/Hello
 
 	sockopt = 1;
 	addrlen = sizeof(struct sockaddr_in);
@@ -214,12 +240,11 @@ int main(void)
 
 			cmd[i] = '\0';
 
-			printf("Got command %s\n", cmd);
-
 			// skip space between the command and the command arguments
 			for (; isspace(buffer[i]); ++i)
 				;
 
+			// default reply is 'fail'
 			strcpy(reply, "fail");
 
 
@@ -230,15 +255,12 @@ int main(void)
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
-			{
-				printf("Doing list command.\n");
-
 				cmd_list(root, &buffer[i], reply);
-			}
 
 
 			// print out the data sent from the client
 			printf("Received: %s\n", buffer);
+			printf("Replied:\n%s", reply);
 
 			// send a response to the client
 			send(client_fd, reply, strlen(reply), 0);
