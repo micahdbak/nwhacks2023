@@ -16,9 +16,17 @@
 				<button onclick="post()">Message</button>
 			</div>
 			{% for thread in threads %}
-			<div class="thread">
-				<h1>{{ thread.content }}</h1>
-				<h2>Created by {{ thread.author }}. #{{ thread.date }}</h2>
+			<div id="{{ thread.path }}" class="thread">
+				<div class="header">
+					<div>
+						<button onclick="list(this.parent().attr('id'))">View</button>
+						<button onclick="select(this.parent().attr('id'))">Select</button>
+					</div>
+					<h1>{{ thread.content }}</h1>
+					<h2>{{ thread.author }} {{ thread.date }}</h2>
+				</div>
+				<div class="body">
+				</div>
 			</div>
 			{% endfor %}
 		</div>

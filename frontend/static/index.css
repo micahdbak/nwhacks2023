@@ -5,6 +5,8 @@ body {
 	font-family: sans-serif;
 }
 .thread {
+}
+.thread .header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -14,17 +16,18 @@ body {
 	background-color: #303038;
 	line-height: 0;
 }
-.thread h1 {
+.thread .header h1 {
 	font-weight: normal;
 	font-size: 14pt;
 }
-.thread h2 {
+.thread .header h2 {
 	font-weight: bold;
 	font-size: 14pt;
 	color: #808088;
 }
 .submit {
 	margin: auto;
+	margin-bottom: 16px;
 	border: 1px solid #404048;
 	padding: 16px;
 	width: 256px;
@@ -47,6 +50,7 @@ body {
 }
 .submit input {
 	resize: vertical;
+	margin-bottom: 8px;
 	border: none;
 	padding: 0px;
 	width: 100%;

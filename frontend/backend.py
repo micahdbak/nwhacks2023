@@ -21,16 +21,8 @@ def transact(msg):
 
     rsp = sock.recv(1024)
 
+    print(rsp.decode())
+
     sock.close()
 
     return rsp
-
-
-def retrieve ():
-    data = get_data ()  # Idk, just parse raw data here
-    posts = []
-    for entry in data:
-        thr = Thread (translate(entry))  # Idk, translate from your format to values
-        posts.append(thr)
-
-    return posts
