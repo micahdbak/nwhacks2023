@@ -16,6 +16,8 @@
 #define CMD_LIST  "list"
 #define CMD_VIEW  "view"
 #define CMD_POST  "post"
+#define CMD_RGST  "rgst"
+#define CMD_LGIN  "lgin"
 
 thread *node_at_path(thread *node, const char *path)
 {
@@ -121,6 +123,28 @@ void cmd_view(thread *root, const char *path, char *reply)
 		return;
 
 	strcpy(reply, node->content);
+}
+
+void cmd_register (const char* username, const char* password, char *reply) {
+	// For successful creation
+	if (add_user (username, password) == 1)
+		strcpy (reply, "Cr");
+	// If user already exists
+	else
+		strcpy (reply, "Ex");
+}
+
+void cmd_login (const char* username, const char* password, char *reply) {
+	int reply_type = find_user (username, password);
+	// For successful login
+	if (reply_type == 1)
+		strcpy (reply, "In");
+	// If database is empty or username isn't found
+	else if (reply_type == -1 || reply_type == -2)
+		strcpy (reply, "Ex");
+	// If wrong password
+	else
+		strcpy (reply, "Ps");
 }
 
 thread *cmd_post(thread *root, const char *path, char *reply)
@@ -267,8 +291,8 @@ int main(void)
 			{
 				strcpy(reply, "Goodbye.\n");
 				cont = 0;
-			} else
-
+			} 
+			else
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
@@ -302,40 +326,14 @@ int main(void)
 					post->author[j] = '\0';
 				}
 			}
+			else
 
-			
-			// view command -- view post content
-			if (strcmp(cmd, CMD_VIEW) == 0)
-				cmd_view(root, &buffer[i], reply);
+			if (strcmp(cmd, CMD_RGST) == 0)
+				cmd_register ();
+			else
 
-
-			// post command -- create a new post
-			if (strcmp(cmd, CMD_POST) == 0)
-			{
-				thread *post;
-
-				post = cmd_post(root, &buffer[i], reply);
-
-				for (; isspace(buffer[i]); ++i)
-					;
-
-				for (j = 0; buffer[i] != '\0'; ++i)
-					post->author[j++] = buffer[i];
-
-				post->author[j] = '\0';
-
-				send(client_fd, reply, strlen(reply), 0);
-				nbytes = read(client_fd, &buffer[i], 1024);
-
-				if (nbytes == 1024)
-					buffer[1023] = '\0';
-				else
-					buffer[nbytes] = '\0';
-
-				strcpy(post->content, buffer);
-			}
-
-
+			if (strcmp(cmd, CMD_LGIN) == 0)
+				cmd_login ();
 			// print out the data sent from the client
 
 			printf("Replied:\n%s\n", reply);

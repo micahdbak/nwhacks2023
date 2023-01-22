@@ -50,7 +50,7 @@ class Thread {
 	}
 }
 
-
+// Converts a string of format type~content~author~epoch into thread object
 function string_to_thread (var str) {
 	const parts = text.split ("~");
 	
