@@ -276,7 +276,7 @@ thread* load_database () {
         if (strlen(content) == 0 && strlen(author) == 0)
             continue;
         
-        long long int epoch = get_epoch (fptr);
+        time_t epoch = get_epoch (fptr);
 
         printf ("'%s' '%s' %ld\n", content, author, epoch);
         

@@ -156,7 +156,7 @@ thread *cmd_post(thread *root, const char *path, char *reply)
 	if (node == NULL)
 		return NULL;
 
-	post = create_thread(Post, "", "", node);
+	post = create_thread(Post, "", "", node, 0);
 
 	if (post == NULL)
 		return NULL;
