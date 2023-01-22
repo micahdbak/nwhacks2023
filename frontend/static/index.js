@@ -91,8 +91,11 @@ function load_path (var path, var index) {
 		if (response.ok) {
 			response.json()
 			.then (function (response) {
+				// If request failed - return empty array
+				if (response.reply == "failure")
+					return [];
 				// Convert given response into array of threads
-				const lines = response.threads.split("\n");
+				const lines = response.reply.split("\n");
 				
 				for (var line : lines) {
 					threads.push (string_to_thread (line), full_path);

@@ -19,14 +19,14 @@ def index(app):
         path = ""
 
         for row in root.split('\n'):
-            column = row.split(' ');
+            column = row.split('~')
 
             if len(column) < 3:
-                continue;
+                continue
 
             print(f'Operating on row {row}')
 
-            column  = row.split(' ');
+            column  = row.split('~')
             type    = int(column[0])
             content = ""
             date    = ""
@@ -48,10 +48,14 @@ def index(app):
         if request.method == 'POST':
             json = request.get_json()
 
-            msg = json['msg']
+            print(f'Got message {json["msg"]}')
 
-            print(f'Got message {msg}')
-
-            return {}
+            return {
+                # Replies exactly what C backend sends, regardless of command type
+                'reply' : backend.transact(json["cmd"]).decode()
+            }
 
         return render_template('index.html', threads=threads)
+
+
+

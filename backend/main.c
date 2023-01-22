@@ -86,11 +86,11 @@ void list_ll(ll_t *list, char *reply)
 		{
 		case Comment:
 		case Post:
-			sprintf(line, "%d %s %ld\n", snode->thr->type, snode->thr->author, snode->thr->epoch);
+			sprintf(line, "%d~%s~%ld\n", snode->thr->type, snode->thr->author, snode->thr->epoch);
 
 			break;
 		case Folder:
-			sprintf(line, "%d %s %s %ld\n", snode->thr->type, snode->thr->author, snode->thr->content, snode->thr->epoch);
+			sprintf(line, "%d~%s~%s~%ld\n", snode->thr->type, snode->thr->author, snode->thr->content, snode->thr->epoch);
 
 			break;
 		}
