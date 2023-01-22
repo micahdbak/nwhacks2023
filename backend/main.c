@@ -15,6 +15,7 @@
 #define CMD_STOP  "stop"
 #define CMD_LIST  "list"
 #define CMD_VIEW  "view"
+#define CMD_POST  "post"
 
 thread *node_at_path(thread *node, const char *path)
 {
@@ -22,7 +23,7 @@ thread *node_at_path(thread *node, const char *path)
 	int i, j;
 	node_t *snode;
 
-	for (i = 0; path[i] != '\0'; ++i)
+	for (i = 0; path[i] != '\0' && !isspace(path[i]); ++i)
 	{
 		for (j = i; path[i] != '/' && path[i] != '\0'; ++i)
 			label[i - j] = path[i];
@@ -122,6 +123,15 @@ void cmd_view(thread *root, const char *path, char *reply)
 	strcpy(reply, node->content);
 }
 
+thread *cmd_post(thread *root, const char *path, char *reply)
+{
+	thread *node, *post;
+
+	node = node_at_path(root, path);
+
+	post = create_thread(Post, "", 
+}
+
 int main(void)
 {
 	int server_fd,  // file descriptor to the server socket
@@ -145,15 +155,16 @@ int main(void)
 	       *post1;
 
 	// allocate the root thread
-	root = create_thread(Folder, "Root", "admin");
+	root = create_thread(Folder, "Root", "admin", NULL);
 
-	subth1 = create_thread(Folder, "CMPT", "micah");
-	subth2 = create_thread(Folder, "MATH", "micah");
-	subth3 = create_thread(Folder, "MACM", "micah");
-	subth4 = create_thread(Folder, "Hello", "micah");
-	subth5 = create_thread(Folder, "World", "micah");
-	subth6 = create_thread(Folder, "Goodbye", "micah");
-	post1 = create_thread(Post, "Hello, world! This is my first ever post.", "micah");
+	subth1 = create_thread(Folder, "CMPT", "micah", root);
+	subth2 = create_thread(Folder, "MATH", "micah", root);
+	subth3 = create_thread(Folder, "MACM", "micah", root);
+	subth4 = create_thread(Folder, "Hello", "micah", subth1);
+	subth5 = create_thread(Folder, "World", "micah", subth1);
+	subth6 = create_thread(Folder, "Goodbye", "micah", subth1);
+	post1 = create_thread(Post, "Hello, world! This is my first ever post.", "micah", subth4);
+	post1->epoch = 100;
 
 	add_subthread(root, subth1);
 	add_subthread(root, subth2);
@@ -252,17 +263,43 @@ int main(void)
 
 			// stop command -- stop backend
 			if (strcmp(cmd, CMD_STOP) == 0)
+			{
+				strcpy(reply, "Goodbye.\n");
 				cont = 0;
+			}
 
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
 				cmd_list(root, &buffer[i], reply);
 
+			
+			// view command -- view post content
+			if (strcmp(cmd, CMD_VIEW) == 0)
+				cmd_view(root, &buffer[i], reply);
+
+
+			// post command -- create a new post
+			if (strcmp(cmd, CMD_POST) == 0)
+			{
+				thread *post;
+
+				post = cmd_post(root, &buffer[i], reply);
+				send(client_fd, reply, strlen(reply, 0));
+				nbytes = read(client_fd, buffer, 1024);
+
+				if (nbytes == 1024)
+					buffer[1023] = '\0';
+				else
+					buffer[nbytes] = '\0';
+
+				strcpy(post->content, buffer);
+			}
+
 
 			// print out the data sent from the client
 			printf("Received: %s\n", buffer);
-			printf("Replied:\n%s", reply);
+			printf("Replied:\n%s\n", reply);
 
 			// send a response to the client
 			send(client_fd, reply, strlen(reply), 0);

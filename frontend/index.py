@@ -9,6 +9,7 @@ def index(app):
             data = backend.transact('list')
             data = backend.transact('list CMPT')
             data = backend.transact('list CMPT/Hello')
+            data = backend.transact('view CMPT/Hello/100')
 
             print (data)
 
