@@ -1,12 +1,33 @@
 
-# CFS - Computer Science Forums
+
+# CSF - Computer Science Forums
 
 ## So What is CSF?
-CSF stands for Computer Science Forums: the demographic of this project. With all the capabilities of any other forum, CSF stands out for its innovation and intuitive design. It is intuitive for its folder structure which is familiar to navigate, and it is efficient for the innovative application of C sockets. CSF performs the majority of its tasks, particularly forum management, in a C daemon. Then a Flask server is deployed to communicate with this daemon, serving information about the forum to the user. This communication is done entirely through sockets, allowing for high-speed process communication.
+
+CSF stands for Computer Science Forums: the demographic of this project. With all the capabilities of any other forum, CSF stands out for its innovation and intuitive design. 
+
+It is intuitive for its folder structure which is familiar to navigate, and it is efficient for the innovative application of C sockets. 
+
+CSF performs the majority of its tasks, particularly forum management, in a C daemon. Then a Flask server is deployed to communicate with this daemon, serving information about the forum to the user. 
+
+This communication is done entirely through sockets, allowing for high-speed process communication.
 
 But, is this truly groundbreaking or breathtaking as is? No, we thought not. That is why we set up a stress-testing procedurally-posting chat bot using OpenAI to respond to existing threads or posts.
 
 However, there are still things to improve. Luckily, it is an exciting project to work on.
+
+## What can you do in CSF?
+
+At the top of the screen there's a form which allows you to make a post. Just don't forget to include your username!
+
+The current directory is shown at the top of this form in the `Post to` line. The scary numbers are unique identifiers of posts, so you know that you are commenting someone when you see such a number in the path.
+
+To go up the directory you have to revert the page back, as there're no internal capabilities to do it as of right now. Neither is there a capability to delete a post from the website, unfortunately.
+
+***
+There are pre-defined folders for various classes that CS students may encounter in their studies.
+
+It's best to post your questions or thoughts into these relevant discussions!
 
 ## Data Type used
 
@@ -58,7 +79,7 @@ where {PATH} is location of a Thread in a tree, i.e. CMPT/125 represents folder 
 For Posts and Comments it is in form: `"{type}~{author}~{epoch}"`
 And for Folders it is in form: `"{type}~{content}~{author}~{epoch}"`, where content means folder's name
 Later the python brings every string to the form of the Folder with '' (empty string) representing the content of Posts and Comments (since it's not provided)
-If there are no subthreads - returns "failure".
+If there are no sub threads - returns "failure".
 Primarily used to display contents of the Folder or comments to the Post.
 
  - "view {PATH}" takes the path of a Thread and returns its content as a string.
