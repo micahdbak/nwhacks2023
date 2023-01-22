@@ -4,6 +4,7 @@ import random
 openai.api_key = "sk-VuNQMum16VixnNQiGSOYT"+"3BlbkFJYSicKqLyQYSHGO149fy0"
 f1 = open("noname_database.txt","a")
 
+
 text0 = "a thread"
 text1 = "one deep comment"
 text2 = "two deep comment"
