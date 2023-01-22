@@ -1,15 +1,107 @@
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#include "backend.h"
 
 #define PORT      8080
 #define NCLIENTS  16
 
 #define CMD_STOP  "stop"
+#define CMD_LIST  "list"
+
+void list_ll(ll_t *list, char *reply)
+{
+	char line[256];
+	node_t *snode;
+
+	reply[0] = '\0';
+
+	for (snode = list->head; snode != NULL; snode = snode->next)
+	{
+		switch (snode->thr->type)
+		{
+		case Comment:
+		case Post:
+			sprintf(line, "%d %s %ld\n", snode->thr->type, snode->thr->author, snode->thr->epoch);
+
+			break;
+		case Folder:
+			sprintf(line, "%d %s %s\n", snode->thr->type, snode->thr->author, snode->thr->content);
+
+			break;
+		}
+
+		strcat(reply, line);
+	}
+}
+
+void cmd_list(thread *node, const char *path, char *reply)
+{
+	char label[256];
+	node_t *snode;
+	int i, j;
+
+	if (path[0] == '\0')
+		goto root_jump;
+
+	for (i = 0; path[i] != '\0'; ++i)
+	{
+		for (j = i; path[i] != '/' && path[i] != '\0'; ++i)
+			label[i - j] = path[i];
+
+		label[i - j] = '\0';
+
+		printf("Got label %s\n", label);
+
+		for (j = 0; label[j] != '\0'; ++j)
+			if (!isdigit(label[j]))
+				break;
+
+		for (snode = node->sub_threads->head; snode != NULL; snode = snode->next)
+		{
+			if (snode->thr->type == Comment || snode->thr->type == Post)
+			{
+				if (label[j] == '\0')
+					if (snode->thr->epoch == atol(label))
+					{
+						node = snode->thr;
+
+						break;
+					}
+			} else { // Folder
+				if (strcmp(snode->thr->content, label) == 0)
+				{
+					node = snode->thr;
+
+					break;
+				}
+			}
+		}
+
+		// continue if there are more subdirectories
+		if (path[i] == '/')
+			continue;
+
+		// path[i] is '\0'.
+		// decrement (i) so the loop check breaks
+		--i;
+
+	root_jump:
+		reply[0] = '\0';
+
+		if (node->sub_threads == NULL)
+			break;
+
+		list_ll(node->sub_threads, reply);
+		printf("The reply is:\n%s", reply);
+	}
+}
 
 int main(void)
 {
@@ -19,10 +111,35 @@ int main(void)
 	    addrlen,    // length of the address datatype
 	    nbytes,     // number of bytes received from the client
 	    cont,       // whether or not the server should continue to accept connections
-	    c, i;
+	    i;
 	struct sockaddr_in address;  // address of the server socket
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
-	     cmd[5];
+	     cmd[5],
+	     reply[1024];
+	thread *root,
+	       *subth1,
+	       *subth2,
+	       *subth3,
+	       *subth4,
+	       *subth5,
+	       *subth6;
+
+	// allocate the root thread
+	root = create_thread(Folder, "Root", "admin");
+
+	subth1 = create_thread(Folder, "CMPT", "micah");
+	subth2 = create_thread(Folder, "MATH", "micah");
+	subth3 = create_thread(Folder, "MACM", "micah");
+	subth4 = create_thread(Folder, "Hello", "micah");
+	subth5 = create_thread(Folder, "World", "micah");
+	subth6 = create_thread(Folder, "Goodbye", "micah");
+
+	add_subthread(root, subth1);
+	add_subthread(root, subth2);
+	add_subthread(root, subth3);
+	add_subthread(subth1, subth4);
+	add_subthread(subth1, subth5);
+	add_subthread(subth1, subth6);
 
 	sockopt = 1;
 	addrlen = sizeof(struct sockaddr_in);
@@ -86,42 +203,45 @@ int main(void)
 		for (;;)
 		{
 			nbytes = read(client_fd, buffer, 1024);
+			buffer[nbytes] = '\0';
 
 			// no data was read; connection was probably closed
 			if (nbytes == 0)
 				break;
 
-			i = 0;
-			c = buffer[i++];
-
-			for (; c != '\0' && i < 4; c = buffer[i++])
-				cmd[i] = c;
-
-			/*
-			if (!isspace(c))
-			{
-				printf("Warning: Client message did not contain a valid command.\n"
-				       "Client message: %s\n", buffer);
-
-				send(client_fd, "nil", 4, 0);
-
-				continue;
-			}
-			*/
+			for (i = 0; i < 4; ++i)
+				cmd[i] = buffer[i];
 
 			cmd[i] = '\0';
 
 			printf("Got command %s\n", cmd);
 
+			// skip space between the command and the command arguments
+			for (; isspace(buffer[i]); ++i)
+				;
+
+			strcpy(reply, "fail");
+
+
 			// stop command -- stop backend
 			if (strcmp(cmd, CMD_STOP) == 0)
 				cont = 0;
+
+
+			// list command -- list posts under a certain path
+			if (strcmp(cmd, CMD_LIST) == 0)
+			{
+				printf("Doing list command.\n");
+
+				cmd_list(root, &buffer[i], reply);
+			}
+
 
 			// print out the data sent from the client
 			printf("Received: %s\n", buffer);
 
 			// send a response to the client
-			send(client_fd, "nil", 4, 0);
+			send(client_fd, reply, strlen(reply), 0);
 		}
 
 		close(client_fd);

@@ -2,3 +2,4 @@ bin/
 venv/
 instance/
 .idea/
+.vscode/

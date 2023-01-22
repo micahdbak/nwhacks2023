@@ -1,8 +1,14 @@
 import os
+import atexit
 from . import backend, index
 from flask import Flask, render_template, request;
 
 SECRET_KEY = 'GENERATE_ME_PLEASE'
+
+def stop_backend():
+    backend.transact('stop')
+
+atexit.register(stop_backend)
 
 def create_app():
     app = Flask(__name__, template_folder='./templates')

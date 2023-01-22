@@ -20,7 +20,11 @@ class Thread:
 
 def transact(msg):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-    sock.connect(('', PORT))
+    
+    try:
+        sock.connect(('', PORT))
+    except:
+        return
 
     try:
         sock.sendall(msg.encode('ascii'))
