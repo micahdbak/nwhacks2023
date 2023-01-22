@@ -63,6 +63,9 @@ Used for showing the entire content of the post. Allows to avoid rendering it un
 
 After receiving data from program on C, Python prepares the data to send it to JavaScript through Fetch API. 
 
+The Flask server is able to translate the URL to a thread-path that correlates to an individual post.
+
+From there, the Flask server communicates with the C Socket to learn about that thread or post.
 
 
 ## AI Post Generator

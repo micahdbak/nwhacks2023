@@ -335,12 +335,12 @@ int main(void)
 			}
 
 
-			if (strcmp(cmd, CMD_RGST) == 0)
+			//if (strcmp(cmd, CMD_RGST) == 0)
 				// requires proper handling of buffer
 				//cmd_register ();
 
 
-			if (strcmp(cmd, CMD_LGIN) == 0)
+			//if (strcmp(cmd, CMD_LGIN) == 0)
 				// requires proper handling of buffer
 				//cmd_login ();
 
@@ -354,6 +354,8 @@ int main(void)
 
 		close(client_fd);
 	}
+
+	save_posts(root);
 
 	shutdown(server_fd, SHUT_RDWR);
 

@@ -73,6 +73,9 @@ def index(app):
 
             response = backend.transact(f'post {path} {author}')
 
+            if response != 'failure':
+                backend.transact(content)
+
             return {}
 
         return render_template('index.html', path=path, threads=threads)

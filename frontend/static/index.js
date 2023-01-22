@@ -15,9 +15,11 @@ function post() {
 		body: JSON.stringify(data),
 	})
 	.then(function(response) {
-		if (response.ok)
+		if (response.ok) {
 			console.log('Sent JSON to server.');
-		else
+
+			location.reload();
+		} else
 			console.log('Couldn\'t send JSON to server.');
 	});
 }

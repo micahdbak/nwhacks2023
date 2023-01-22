@@ -7,12 +7,21 @@
 	</head>
 	<body>
 		<div class="page">
+			<div class="image">
+				<img src="{{ url_for('static', filename='csf.svg') }}">
+			</div>
 			<div class="submit">
 				<div class="info">
 					<h1>Post to</h1>
 					<h2>{{ path }}</h2>
 				</div>
-				<input id="post_input" type="text"></input>
+				<label for="post_author">Author</label>
+				<input id="post_author" type="text"></input>
+				<br>
+				<label for="post_content">Content</label>
+				<br>
+				<textarea id="post_content" rows="4" cols="30"></textarea>
+				<br>
 				<button onclick="post()">Message</button>
 			</div>
 			{% for thread in threads %}

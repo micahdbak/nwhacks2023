@@ -8,6 +8,14 @@ a {
 	display: inline-block;
 	color: white;
 }
+.image {
+	margin: auto;
+	margin-bottom: 32px;
+	width: 160px;
+}
+.image img {
+	width: 100%;
+}
 .thread {
 	display: flex;
 	justify-content: space-between;
@@ -32,6 +40,11 @@ a {
 	border: 1px solid #505058;
 	padding: 16px;
 	background-color: #404048;
+}
+.post h1 {
+	font-weight: normal;
+	font-size: 14pt;
+	color: #e0e0e0;
 }
 .submit {
 	margin: auto;
@@ -61,6 +74,4 @@ a {
 	margin-bottom: 8px;
 	border: none;
 	padding: 0px;
-	width: 100%;
-	height: 64px;
 }
