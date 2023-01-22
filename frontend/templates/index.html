@@ -12,15 +12,15 @@
 					<h1>Post to</h1>
 					<h2 id="path_preview">Root</h2>
 				</div>
-				<input id="1" type="text"></input>
+				<input id="post_input" type="text"></input>
 				<button onclick="post()">Message</button>
 			</div>
 			{% for thread in threads %}
 			<div id="{{ thread.path }}" class="thread">
 				<div class="header">
 					<div>
-						<button onclick="open_thread(this.parent().attr('id'))">View</button>
-						<button onclick="select(this.parent().attr('id'))">Select</button>
+						<button onclick="open_thread(this.parentElement.id)">View</button>
+						<button onclick="select(this.parentElement.id)">Select</button>
 					</div>
 					<h1>{{ thread.content }}</h1>
 					<h2>{{ thread.author }} {{ thread.epoch }}</h2>
