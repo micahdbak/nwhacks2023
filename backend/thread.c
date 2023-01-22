@@ -163,7 +163,7 @@ int by_comments (const void* a, const void* b) {
 }
 
 
-int main () {
+/*int main () {
     int _date[4] = {10, 1, 2, 1000};
     char _content[2048] = "AUHEUFBEIE";
     char _author[32] = "WNIUFJFJWNEO";
@@ -175,4 +175,4 @@ int main () {
     delete_node (&test);
 
     return 0;
-}
+}*/
