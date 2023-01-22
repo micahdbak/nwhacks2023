@@ -182,10 +182,10 @@ void save_thread (FILE *fptr, thread* thr, int depth) {
 
 int get_depth (FILE *fptr) {
     int depth = 0;
-    char num = fgetc (fptr);
+    int num = fgetc (fptr);
 
     // get depth of entry, stored as decimal number before entry
-    while (num != ' ') {
+    while (num != ' ' && num != EOF) {
         depth = depth * 10 + (num - '0');
         num = fgetc (fptr);
     }
@@ -194,10 +194,10 @@ int get_depth (FILE *fptr) {
 }
 
 void get_content (FILE *fptr, char (*content)[1024]) {
-    char ch = fgetc (fptr);
+    int ch = fgetc (fptr);
 
     int i;
-    for (i = 0; ch != '~'; i++) {   
+    for (i = 0; ch != '~' && ch != EOF; i++) {   
         (*content)[i] = ch;
         ch = fgetc (fptr);
     }
@@ -205,10 +205,10 @@ void get_content (FILE *fptr, char (*content)[1024]) {
 }
 
 void get_author (FILE *fptr, char (*author)[32]) {
-    char ch = fgetc (fptr);
+    int ch = fgetc (fptr);
 
     int i;
-    for (i = 0; ch != '~'; i++) {
+    for (i = 0; ch != '~' && ch != EOF; i++) {
         (*author)[i] = ch;
         ch = fgetc (fptr);
     }
@@ -222,10 +222,15 @@ thread* load_database () {
     if (fptr == NULL)
         return NULL;
 
-    int cur_depth = 0;
+    int cur_depth = 0, c;
     thread* root = NULL, *cur = root;
 
     while (fgetc(fptr) != EOF) {
+        if ((c = getc(fptr)) == EOF)
+	    break;
+	else
+	    ungetc(c, fptr);
+
         int depth = get_depth (fptr); // Get the depth from first entry in line
 
         // If depth indicates that this is a subpost of latest post -> change directory
