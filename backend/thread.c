@@ -1,5 +1,7 @@
 #include "thread.h"
 
+#define IS_VLAD
+
 // ************************************
 // Functions for Node struct
 // ************************************
@@ -228,7 +230,10 @@ thread* load_database () {
     while (fgetc(fptr) != EOF) {
         if ((c = getc(fptr)) == EOF)
             break;
-	    //ungetc(c, fptr);
+	#ifndef IS_VLAD
+	else
+	    ungetc(c, fptr);
+	#endif
 
         int depth = get_depth (fptr); // Get the depth from first entry in line
         printf ("%d ", depth);
