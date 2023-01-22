@@ -259,10 +259,13 @@ thread* load_database () {
             cur_depth++;
             cur = cur->sub_threads->head->thr;
         }
-        // Otherwise if depth is the same as current depth -> return to parent directory
-        else if (depth == cur_depth && depth != 0) {
-            cur_depth--;
-            cur = cur->parent;
+        // Otherwise depth may indicate the need to ascend in directories
+        else if (depth <= cur_depth && depth > 0) {
+            // Get to the correct parent-directory through series of moves
+            for (int dp = cur_depth; dp >= depth; dp--)
+                cur = cur->parent;
+            // Set the depth to depth of parent directory
+            cur_depth = depth - 1;
         }
         //printf("Working\n");
         // Get 1-digit type of the thread and cast to enum

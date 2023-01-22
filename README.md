@@ -1,4 +1,6 @@
 
+# CFS - Computer Science Forums
+
 ## Data Type used
 
 The website consists of so-called "Threads", which describe an object with [content, author, score, and sub-threads], as well as time-of-creation. 
@@ -58,5 +60,17 @@ Used for showing the entire content of the post. Allows to avoid rendering it un
  - "post {CONTENT}" takes a string of content and creates a post with it, returning "success" if post was created and "failure" otherwise.
 
 ### Middle Stage
+
 After receiving data from program on C, Python prepares the data to send it to JavaScript through Fetch API. 
 
+
+
+## AI Post Generator
+
+CSF uses OpenAI's davinciGPT3 to populate the site with posts that are almost indistinguishable from a real person's. 
+
+Given some basic prompts davinciGPT3 can create whole threads and fill it with comments. 
+
+`bulkcreate.py` allows you to generate as many threads as you want, as well as with include a random amount of comments, given a prompt. 
+
+`proceduralgen.py`, when run, periodically comments on posts to emulate an active site, taking into account the contexts of the post
