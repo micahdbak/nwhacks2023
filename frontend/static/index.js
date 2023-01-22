@@ -1,4 +1,4 @@
-function post(var form_id) {
+function post(form_id) {
 	// Dunno how, but extract content, author and epoch from post form
 	var content = extract_content (form_id);
 	var author  = extract_author  (form_id);
@@ -56,7 +56,7 @@ class Thread {
 }
 
 // Converts a string of format type~content~author~epoch into thread object
-function string_to_thread (var str, var path) {
+function string_to_thread (str, path) {
 	const parts = text.split ("~");
 	
 	const thr = new Thread (parseInt(parts[0]), 
@@ -68,7 +68,7 @@ function string_to_thread (var str, var path) {
 }
 
 // Retrieves the threads from requested directory
-function load_path (var path) {
+function load_path (path) {
 	var data = {
 		// FYI: the full path to the directory intended to be listed will be provided
 		cmd: 'list ' + path
@@ -114,7 +114,7 @@ function load_path (var path) {
 	return threads;
 }
 
-function open_thread (var path) {
+function open_thread (path) {
 	threads = load_path(path);
 	body = document.getElementById(path + ':body');
 
