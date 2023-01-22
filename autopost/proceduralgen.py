@@ -12,10 +12,10 @@ content = openai.Completion.create(
     temperature=1
 )
 time.sleep(5)
-response = backend.transact('post CMPT/ davinciGPT3').decode()
+response = backend.transact('post CMPT davinciGPT3').decode()
 if response != 'failure':
     backend.transact(content["choices"][0]["text"]).decode()
-    CMPTfull = backend.transact('list CMPT/').decode()
+    CMPTfull = backend.transact('list CMPT').decode()
     contentidindex = CMPTfull.split('\n')
     #split
     # x x x
