@@ -2,20 +2,6 @@ import socket
 
 PORT = 8080
 
-class Thread:
-    def __init__(self, _content, _author, _date):
-        self.content = _content
-        self.author = _author
-        self.date = _date
-
-    def get_content (self):
-        return self.content
-
-    def get_author (self):
-        return self.author
-
-    def get_date (self):
-        return self.date
 
 
 def transact(msg):
@@ -24,14 +10,14 @@ def transact(msg):
     try:
         sock.connect(('', PORT))
     except:
-        return
+        return b'fail'
 
     try:
         sock.sendall(msg.encode('ascii'))
     except:
         sock.close()
 
-        return
+        return b'fail'
 
     rsp = sock.recv(1024)
 
