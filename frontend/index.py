@@ -10,6 +10,8 @@ def index(app):
             data = backend.transact('list CMPT')
             data = backend.transact('list CMPT/Hello')
 
+            print (data)
+
             return {
                 'link': '/index.html'
             }

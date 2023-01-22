@@ -135,7 +135,7 @@ int main(void)
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
 	     cmd[5],
 	     reply[1024];
-	thread *root,
+	/*thread *root,
 	       *subth1,
 	       *subth2,
 	       *subth3,
@@ -163,7 +163,9 @@ int main(void)
 	add_subthread(subth1, subth5);
 	add_subthread(subth1, subth6);
 
-	add_subthread(subth4, post1);
+	add_subthread(subth4, post1);*/
+
+	thread* root = load_database ();
 
 	// CMPT/Hello
 

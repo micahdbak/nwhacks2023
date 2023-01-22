@@ -104,7 +104,7 @@ void add_score (thread* thr, bool like) {
 
 
 void remove_thread (thread* thr) {
-    strncpy(thr->content, "This post has been deleted by author", 256);
+    strncpy(thr->content, "This post has been deleted by author", 1024);
 }
 
 void delete_thread (thread** thr) {
