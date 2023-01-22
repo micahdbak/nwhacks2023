@@ -1,3 +1,54 @@
 body {
 	padding: 32px;
+	background-color: #202028;
+	color: white;
+	font-family: sans-serif;
+}
+.thread {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 8px;
+	border: 1px solid #404048;
+	padding: 16px;
+	background-color: #303038;
+	line-height: 0;
+}
+.thread h1 {
+	font-weight: normal;
+	font-size: 14pt;
+}
+.thread h2 {
+	font-weight: bold;
+	font-size: 14pt;
+	color: #808088;
+}
+.submit {
+	margin: auto;
+	border: 1px solid #404048;
+	padding: 16px;
+	width: 256px;
+	background-color: #303038;
+}
+.submit .info {
+	display: flex;
+	justify-content: left;
+	align-items: center;
+}
+.submit .info h1 {
+	margin-right: 8px;
+	font-weight: normal;
+	font-size: 12pt;
+}
+.submit .info h2 {
+	font-weight: normal;
+	font-size: 12pt;
+	color: #a0a0a8;
+}
+.submit input {
+	resize: vertical;
+	border: none;
+	padding: 0px;
+	width: 100%;
+	height: 64px;
 }

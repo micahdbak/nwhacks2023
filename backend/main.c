@@ -88,7 +88,7 @@ void list_ll(ll_t *list, char *reply)
 
 			break;
 		case Folder:
-			sprintf(line, "%d %s %s\n", snode->thr->type, snode->thr->author, snode->thr->content);
+			sprintf(line, "%d %s %s %ld\n", snode->thr->type, snode->thr->author, snode->thr->content, snode->thr->epoch);
 
 			break;
 		}
@@ -267,18 +267,18 @@ int main(void)
 			{
 				strcpy(reply, "Goodbye.\n");
 				cont = 0;
-			} else
+			}
 
 
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
 				cmd_list(root, &buffer[i], reply);
-			else
+
 			
 			// view command -- view post content
 			if (strcmp(cmd, CMD_VIEW) == 0)
 				cmd_view(root, &buffer[i], reply);
-			else
+
 
 			// post command -- create a new post
 			if (strcmp(cmd, CMD_POST) == 0)
@@ -301,38 +301,6 @@ int main(void)
 
 					post->author[j] = '\0';
 				}
-			}
-
-			
-			// view command -- view post content
-			if (strcmp(cmd, CMD_VIEW) == 0)
-				cmd_view(root, &buffer[i], reply);
-
-
-			// post command -- create a new post
-			if (strcmp(cmd, CMD_POST) == 0)
-			{
-				thread *post;
-
-				post = cmd_post(root, &buffer[i], reply);
-
-				for (; isspace(buffer[i]); ++i)
-					;
-
-				for (j = 0; buffer[i] != '\0'; ++i)
-					post->author[j++] = buffer[i];
-
-				post->author[j] = '\0';
-
-				send(client_fd, reply, strlen(reply), 0);
-				nbytes = read(client_fd, &buffer[i], 1024);
-
-				if (nbytes == 1024)
-					buffer[1023] = '\0';
-				else
-					buffer[nbytes] = '\0';
-
-				strcpy(post->content, buffer);
 			}
 
 

@@ -1,6 +1,6 @@
 #include "thread.h"
 
-#define IS_VLAD
+#undef IS_VLAD
 
 // ************************************
 // Functions for Node struct
