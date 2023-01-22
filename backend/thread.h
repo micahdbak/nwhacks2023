@@ -50,7 +50,7 @@ struct Thread {
     int score;           // Essentially reddit karma
     char content[1024];  // Content of the thread
     char author[32];     // Author of the post
-    long long int epoch; // Epoch time for current post
+    time_t epoch; // Epoch time for current post
 };
 
 thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent);
