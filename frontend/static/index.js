@@ -68,9 +68,8 @@ function load_path (var path, var index) {
 	var full_path = "list " + path + "/" + index;
 	
 	var data = {
-		type: "list",
 		// Command for python socket to run
-		cmd: full_path
+		cmd: 'list ' + full_path
 	};
 
 	console.log(window.location.href)
