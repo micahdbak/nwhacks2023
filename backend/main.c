@@ -23,11 +23,16 @@ int main(void)
 	    addrlen,    // length of the address datatype
 	    nbytes,     // number of bytes received from the client
 	    cont,       // whether or not the server should continue to accept connections
-	    i;
+	    i, j;
 	struct sockaddr_in address;  // address of the server socket
 	char buffer[1024] = { 0 },   // buffer to hold the bytes received from the client
-	     cmd[5];
-	thread *root;
+	     cmd[5],
+	     label[256],
+	     reply[1024],
+	     line[256];
+	thread *root, *node;
+	node_t *snode;
+	time_t id_cmp;
 
 	int date_tmp[4] = { 2023, 1, 21, 0 };
 
@@ -101,7 +106,7 @@ int main(void)
 			if (nbytes == 0)
 				break;
 
-			for (i = 0; buffer[i] != '\0' && i < 4; ++i)
+			for (i = 0; i < 4; ++i)
 				cmd[i] = buffer[i];
 
 			cmd[i] = '\0';
@@ -112,6 +117,8 @@ int main(void)
 			for (; isspace(buffer[i]); ++i)
 				;
 
+			strcpy(reply, "fail");
+
 
 			// stop command -- stop backend
 			if (strcmp(cmd, CMD_STOP) == 0)
@@ -121,7 +128,37 @@ int main(void)
 			// list command -- list posts under a certain path
 			if (strcmp(cmd, CMD_LIST) == 0)
 			{
-				
+				node = root;
+
+				for (; buffer[i] != '\0'; ++i)
+				{
+					for (j = i; buffer[i] != '/'; ++i)
+						label[i - j] = buffer[i];
+
+					label[i - j] = '\0';
+
+					for (j = 0; label[j] != '\0'; ++j)
+						if (!isdigit(label[j]))
+							break;
+
+					// path is a post; list comments
+					if (label[j] == '\0')
+					{
+						for (snode = node->ll_t->head; snode != NULL; snode = snode->next)
+						{
+							if (snode->thr->id == id_cmp)
+							{
+								reply[0] = '\0';
+
+								sprintf(line, "%d %s %ld", snode->thr->type, snode->thr->author, snode->thr->id);
+
+								break;
+							}
+						}
+
+						break;
+					}
+				}
 			}
 
 
@@ -129,7 +166,7 @@ int main(void)
 			printf("Received: %s\n", buffer);
 
 			// send a response to the client
-			send(client_fd, "nil", 4, 0);
+			send(client_fd, reply, strlen(reply), 0);
 		}
 
 		close(client_fd);
