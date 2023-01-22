@@ -166,6 +166,9 @@ int main(void)
 	add_subthread(subth4, post1);*/
 
 	thread* root = load_database ();
+	if (root == NULL)
+		printf("NULL\n");
+	printf("%s\n", root->content);
 
 	// CMPT/Hello
 
