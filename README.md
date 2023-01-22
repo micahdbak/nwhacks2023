@@ -1,6 +1,13 @@
 
 # CFS - Computer Science Forums
 
+## So What is CSF?
+CSF stands for Computer Science Forums: the demographic of this project. With all the capabilities of any other forum, CSF stands out for its innovation and intuitive design. It is intuitive for its folder structure which is familiar to navigate, and it is efficient for the innovative application of C sockets. CSF performs the majority of its tasks, particularly forum management, in a C daemon. Then a Flask server is deployed to communicate with this daemon, serving information about the forum to the user. This communication is done entirely through sockets, allowing for high-speed process communication.
+
+But, is this truly groundbreaking or breathtaking as is? No, we thought not. That is why we set up a stress-testing procedurally-posting chat bot using OpenAI to respond to existing threads or posts.
+
+However, there are still things to improve. Luckily, it is an exciting project to work on.
+
 ## Data Type used
 
 The website consists of so-called "Threads", which describe an object with [content, author, score, and sub-threads], as well as time-of-creation. 
