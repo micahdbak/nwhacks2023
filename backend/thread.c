@@ -72,7 +72,7 @@ void delete_list (ll_t** list) {
 // Functions for Thread struct
 // ************************************
 
-thread* create_thread (enum thread_type _type, char _content[2048], char _author[32], int _date[4]) {
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32]) {
     thread* thr = (thread*)malloc(sizeof(thread));
     thr->n = 0;
     thr->sub_threads = NULL;
@@ -81,9 +81,7 @@ thread* create_thread (enum thread_type _type, char _content[2048], char _author
 
     strcpy (thr->content, _content);
     strcpy (thr->author, _author);
-
-    for (int i = 0; i < 4; i++)
-        thr->date[i] = _date[i];
+    thr->epoch = time(NULL);
 
     return thr;
 }
@@ -142,17 +140,7 @@ int by_date (const void* a, const void* b) {
     const thread* thr_a = (thread*) a;
     const thread* thr_b = (thread*) b;
 
-    // Skip to month if years are the same
-    if (thr_b->date[0] != thr_a->date[0])
-        return thr_b->date[0] - thr_a->date[0];
-    // Skip to day if months are the same
-    if (thr_b->date[1] != thr_a->date[1])
-        return thr_b->date[1] - thr_a->date[1];
-    // Skip to seconds if days are the same
-    if (thr_b->date[2] != thr_a->date[2])
-        return thr_b->date[2] - thr_a->date[2];
-    // Compare by seconds if all other values are the same
-    return thr_b->date[3] - thr_a->date[3];
+    return thr_b->epoch - thr_a->epoch;
 }
 
 int by_comments (const void* a, const void* b) {
@@ -165,7 +153,7 @@ int by_comments (const void* a, const void* b) {
 
 /*int main () {
     int _date[4] = {10, 1, 2, 1000};
-    char _content[2048] = "AUHEUFBEIE";
+    char _content[1024] = "AUHEUFBEIE";
     char _author[32] = "WNIUFJFJWNEO";
 
     thread* thr = create_thread (2, _content, _author, _date);

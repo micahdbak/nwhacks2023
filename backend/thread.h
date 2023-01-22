@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "thread.h"
+
+#define FILENAME "database.txt"
 
 
 enum thread_type {Comment, Post, Folder};
@@ -44,13 +47,13 @@ struct Thread {
     ll_t* sub_threads;  // Pointers to those subthreads
     enum thread_type type; // Determines whether thread is one of the types
 
-    char content[2048];  // Content of the thread
+    char content[1024];  // Content of the thread
     char author[32];     // Author of the post
-    int date[4];         // year/month/day/seconds since beginning of day
+    long long int epoch; // Epoch time for current post
     int score;           // Essentially reddit karma
 };
 
-thread* create_thread (enum thread_type _type, char _content[2048], char _author[32], int _date[4]);
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32]);
 // Adds an element to sub_threads linked list from head
 void add_subthread (thread* thr, thread* sub_thr);
 
@@ -68,5 +71,7 @@ ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*));
 void remove_thread (thread* thr);  // soft delete of the thread
 void delete_thread (thread** thr); // hard delete of the thread
 
+void save_posts (thread* root);
+void load_database ();
 
 #endif
