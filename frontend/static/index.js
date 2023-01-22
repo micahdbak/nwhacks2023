@@ -1,6 +1,5 @@
 function post() {
 	var data = {
-		msg: document.getElementById("1").value
 	};
 
 	fetch(window.location.href, {
@@ -17,6 +16,7 @@ function post() {
 			console.log('Couldn\'t send JSON to server.');
 	});
 }
+
 
 // Rerpresents the same thread as in backend
 class Thread {
@@ -53,16 +53,12 @@ function string_to_thread (var str) {
 	return thr;
 }
 
-
 function load_path (var path, var index) {
 	var data = {
-		type: "list";
 		// Command for python socket to run
-		cmd: "list " + path + "/" + index;
 	};
 
 	console.log(window.location.href)
-
 	const threads = [];
 
 	fetch (window.location.href, {
