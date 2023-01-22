@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-
-#define FILENAME "users.txt"
+#include "user_base.h"
 
 // Helper function - retrieves 1 entry, either username or password, depending on current position
 char* get_word(FILE *fptr) {
@@ -24,10 +19,7 @@ char* get_word(FILE *fptr) {
     return line;
 }
 
-// Adds user and his password to the .txt database file
-// stored in form:  n1 login n2 password\n
-// where [n1 is length of login] and [n2 is length of password]
-// returns 0 for already created username, 1 for successfuly created user
+
 int add_user (const char* username, const char* password) {
     FILE *fptr;
     fptr = fopen(FILENAME, "r");
@@ -56,8 +48,6 @@ int add_user (const char* username, const char* password) {
     return 1;
 }
 
-// Finds user in the .txt database file and compares given password with the stored
-// Returns 1 for successful login, -1 if file doesn't exist, -2 for wrong username, -3 for wrong passowrd
 int find_user (const char* username, const char* password) {
     FILE *fptr;
     fptr = fopen(FILENAME, "r");

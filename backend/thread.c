@@ -74,7 +74,7 @@ void delete_list (ll_t** list) {
 // Functions for Thread struct
 // ************************************
 
-thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent) {
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent, time_t _epoch) {
     thread* thr = (thread*)malloc(sizeof(thread));
 
     thr->n = 0;
@@ -85,7 +85,10 @@ thread* create_thread (enum thread_type _type, char _content[1024], char _author
     thr->score = 0;
     strcpy (thr->content, _content);
     strcpy (thr->author, _author);
-    thr->epoch = time(NULL);
+    if (_epoch == 0)
+        thr->epoch = time(NULL);
+    else
+        thr->epoch = _epoch;
 
     return thr;
 }
@@ -170,8 +173,10 @@ void save_posts (thread* root) {
 }
 
 void save_thread (FILE *fptr, thread* thr, int depth) {
-    fprintf (fptr, "\n%d %d~%s~%s~", depth, thr->type, thr->content, thr->author);
+    // Save current thread's info to file
+    fprintf (fptr, "\n%d %d~%s~%s~%ld~", depth, thr->type, thr->content, thr->author, thr->epoch);
 
+    // Invoke save on sub-threads in DFS manner
     if (thr->sub_threads != NULL) {
         node_t* cur = thr->sub_threads->head;
         while (cur != NULL) {
@@ -184,7 +189,7 @@ void save_thread (FILE *fptr, thread* thr, int depth) {
 
 int get_depth (FILE *fptr) {
     int depth = 0;
-    int num = fgetc (fptr);
+    char num = fgetc (fptr);
     
     // get depth of entry, stored as decimal number before entry
     while (num != ' ' && num != EOF) {
@@ -217,6 +222,18 @@ void get_author (FILE *fptr, char (*author)[32]) {
     (*author)[i] = '\0';
 }
 
+long long int get_epoch (FILE *fptr) {
+    long long int epoch = 0;
+    char num = fgetc (fptr);
+
+    while (num != '~' && num != EOF) {
+        epoch = epoch * 10 + (num - '0');
+        num = fgetc (fptr);
+    }
+
+    return epoch;
+}
+
 thread* load_database () {
     FILE *fptr;
     fptr = fopen (FILENAME_DATA, "r");
@@ -230,10 +247,10 @@ thread* load_database () {
     while (fgetc(fptr) != EOF) {
         if ((c = getc(fptr)) == EOF)
             break;
-	#ifndef IS_VLAD
-	else
-	    ungetc(c, fptr);
-	#endif
+        #ifndef IS_VLAD
+        else
+            ungetc(c, fptr);
+        #endif
 
         int depth = get_depth (fptr); // Get the depth from first entry in line
         printf ("%d ", depth);
@@ -258,16 +275,18 @@ thread* load_database () {
         get_author (fptr, &author);
         if (strlen(content) == 0 && strlen(author) == 0)
             continue;
+        
+        long long int epoch = get_epoch (fptr);
 
-        printf ("'%s' '%s'\n", content, author);
+        printf ("'%s' '%s' %ld\n", content, author, epoch);
         
         // Define the root if it's not yet defined
         if (root == NULL) {
-            root = create_thread (type, content, author, NULL);
+            root = create_thread (type, content, author, NULL, epoch);
             cur = root;
         }
         else {
-            add_subthread (cur, create_thread (type, content, author, cur));
+            add_subthread (cur, create_thread (type, content, author, cur, epoch));
         }
     }
 

@@ -53,7 +53,7 @@ struct Thread {
     time_t epoch; // Epoch time for current post
 };
 
-thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent);
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent, time_t _epoch);
 // Adds an element to sub_threads linked list from head
 void add_subthread (thread* thr, thread* sub_thr);
 
@@ -84,5 +84,7 @@ int get_depth (FILE *fptr);
 void get_content (FILE *fptr, char (*content)[1024]);
 // Helper function to extract author
 void get_author (FILE *fptr, char (*author)[32]);
+// Helper function to extract epoch time
+long long int get_epoch (FILE *fptr);
 
 #endif

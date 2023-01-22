@@ -4,6 +4,7 @@
  *************************/
 
 #include "thread.h"
+#include "user_base.h"
 
 // various functions for the manipulation of threads
 
