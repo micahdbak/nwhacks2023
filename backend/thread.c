@@ -72,13 +72,15 @@ void delete_list (ll_t** list) {
 // Functions for Thread struct
 // ************************************
 
-thread* create_thread (enum thread_type _type, char _content[1024], char _author[32]) {
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent) {
     thread* thr = (thread*)malloc(sizeof(thread));
+
     thr->n = 0;
     thr->sub_threads = NULL;
+    thr->parent = _parent;
     thr->type = _type;
-    thr->score = 0;
 
+    thr->score = 0;
     strcpy (thr->content, _content);
     strcpy (thr->author, _author);
     thr->epoch = time(NULL);
@@ -100,16 +102,6 @@ void add_score (thread* thr, bool like) {
     thr->score += (like) ? 1 : -1;
 }
 
-ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*)) {
-    if (thr->sub_threads == NULL)
-        return;
-
-    ll_t* copy = deep_copy (thr->sub_threads);
-    qsort (copy, thr->n, sizeof(node_t), cmpfunc);
-
-    return copy;
-}
-
 
 void remove_thread (thread* thr) {
     strncpy(thr->content, "This post has been deleted by author", 256);
@@ -128,6 +120,16 @@ void delete_thread (thread** thr) {
 // ************************************
 // Functions for Sorting threads
 // ************************************
+
+ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*)) {
+    if (thr->sub_threads == NULL)
+        return NULL;
+
+    ll_t* copy = deep_copy (thr->sub_threads);
+    qsort (copy, thr->n, sizeof(node_t), cmpfunc);
+
+    return copy;
+}
 
 int by_likes (const void* a, const void* b) {
     const thread* thr_a = (thread*) a;
@@ -150,17 +152,149 @@ int by_comments (const void* a, const void* b) {
     return thr_b->n - thr_a->n;
 }
 
+// ************************************
+// Functions for Saving and Loading database (.txt file)
+// ************************************
+
+void save_posts (thread* root) {
+    FILE *fptr;
+    fptr = fopen (FILENAME, "w");
+
+    if (fptr != NULL) {
+        save_thread (fptr, root, 0);        
+    }
+
+    fclose (fptr);
+}
+
+void save_thread (FILE *fptr, thread* thr, int depth) {
+    fprintf (fptr, "\n%d %d~%s~%s~", depth, thr->type, thr->content, thr->author);
+
+    if (thr->sub_threads != NULL) {
+        node_t* cur = thr->sub_threads->head;
+        while (cur != NULL) {
+            save_thread (fptr, cur->thr, depth + 1);
+            cur = cur->next;
+        }
+    }
+}
+
+
+int get_depth (FILE *fptr) {
+    int depth = 0;
+    char num = fgetc (fptr);
+
+    // get depth of entry, stored as decimal number before entry
+    while (num != ' ') {
+        depth = depth * 10 + (num - '0');
+        num = fgetc (fptr);
+    }
+
+    return depth;
+}
+
+void get_content (FILE *fptr, char (*content)[1024]) {
+    char ch = fgetc (fptr);
+
+    int i;
+    for (i = 0; ch != '~'; i++) {   
+        (*content)[i] = ch;
+        ch = fgetc (fptr);
+    }
+    (*content)[i] = '\0';
+}
+
+void get_author (FILE *fptr, char (*author)[32]) {
+    char ch = fgetc (fptr);
+
+    int i;
+    for (i = 0; ch != '~'; i++) {
+        (*author)[i] = ch;
+        ch = fgetc (fptr);
+    }
+    (*author)[i] = '\0';
+}
+
+thread* load_database () {
+    FILE *fptr;
+    fptr = fopen (FILENAME, "r");
+    // If file doesn't exist
+    if (fptr == NULL)
+        return NULL;
+
+    int cur_depth = 0;
+    thread* root = NULL, *cur = root;
+
+    while (fgetc(fptr) != EOF) {
+        int depth = get_depth (fptr); // Get the depth from first entry in line
+
+        // If depth indicates that this is a subpost of latest post -> change directory
+        if (depth > cur_depth + 1) {
+            cur_depth++;
+            cur = cur->sub_threads->head->thr;
+        }
+        // Otherwise if depth is the same as current depth -> return to parent directory
+        else if (depth == cur_depth && depth != 0) {
+            cur_depth--;
+            cur = cur->parent;
+        }
+        //printf("Working\n");
+        // Get 1-digit type of the thread and cast to enum
+        enum thread_type type = (enum thread_type)(fgetc(fptr) - '0');
+        fgetc(fptr);   // Skip the ~ divider character
+        char content[1024], author[32];
+        
+        // Fill in content and author from the line
+        get_content (fptr, &content);
+        get_author (fptr, &author);
+
+        printf ("'%s' '%s'\n", content, author);
+        
+        // Define the root if it's not yet defined
+        if (root == NULL) {
+            root = create_thread (type, content, author, NULL);
+            cur = root;
+        }
+        else {
+            add_subthread (cur, create_thread (type, content, author, cur));
+        }
+    }
+
+    fclose (fptr);
+
+    return root;
+}
+
 
 /*int main () {
-    int _date[4] = {10, 1, 2, 1000};
-    char _content[1024] = "AUHEUFBEIE";
-    char _author[32] = "WNIUFJFJWNEO";
+    thread* root;
 
-    thread* thr = create_thread (2, _content, _author, _date);
+    char _content[1024] = "Zalupa sinyaya sialo dike, tvoyu matb ebali koni. Zemlya zelyonaya";
+    char _author[32] = "Vlados Pendos";
+    root = create_thread (Post, _content, _author, NULL);
 
-    node_t* test = create_node (thr, NULL);
-    delete_thread (&thr);
-    delete_node (&test);
+    char _content1[1024] = "Na lugu yebali yogikja";
+    char _author1[32] = "Andrew";
+    thread* thr = create_thread (Post, _content1, _author1, NULL);
+    add_subthread (root, thr);
+
+    char _content2[1024] = "Ti pidor";
+    char _author2[32] = "Krishna";
+    thr = create_thread (Post, _content2, _author2, NULL);
+    add_subthread (root, thr);
+
+    char _content3[1024] = "Sam pidor, gandon vonyuchiy";
+    char _author3[32] = "Pasha Tehnik";
+    thr = create_thread (Post, _content3, _author3, NULL);
+    add_subthread (root->sub_threads->head->thr, thr);
+
+    save_posts (root);
+
+    delete_thread (&root);
+
+    root = load_database ();
+
+    delete_thread (&root);
 
     return 0;
 }*/

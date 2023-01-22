@@ -11,7 +11,6 @@
 
 #define FILENAME "database.txt"
 
-
 enum thread_type {Comment, Post, Folder};
 
 // Forward declaration
@@ -45,33 +44,45 @@ void delete_list (ll_t** list);     // In loop individually free all nodes insid
 struct Thread {
     int n;              // Number of directly linked subthreads
     ll_t* sub_threads;  // Pointers to those subthreads
+    struct Thread* parent; // Ppointer to the parent of this thread
     enum thread_type type; // Determines whether thread is one of the types
 
+    int score;           // Essentially reddit karma
     char content[1024];  // Content of the thread
     char author[32];     // Author of the post
     long long int epoch; // Epoch time for current post
-    int score;           // Essentially reddit karma
 };
 
-thread* create_thread (enum thread_type _type, char _content[1024], char _author[32]);
+thread* create_thread (enum thread_type _type, char _content[1024], char _author[32], thread* _parent);
 // Adds an element to sub_threads linked list from head
 void add_subthread (thread* thr, thread* sub_thr);
 
 // Individual change to the score of the post. Like == true means upvote, downvote otherwise
 void add_score (thread* thr, bool like);
 
+// Given the comparison function, sort the sub-threads of given thread
+ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*));
+
 // Comparison functions for sorting
 int by_likes (const void* a, const void* b);     // Sort by score in descending order
 int by_date (const void* a, const void* b);      // Sort by date in descending order (new first)
 int by_comments (const void* a, const void* b);  // Sort by number of comments in descending order
 
-// Given the comparison function, sort the sub-threads of given thread
-ll_t* sort_by (thread* thr, int (*cmpfunc) (const void*, const void*));
-
 void remove_thread (thread* thr);  // soft delete of the thread
 void delete_thread (thread** thr); // hard delete of the thread
 
+// Saves the entire tree into the file in DFS form
 void save_posts (thread* root);
-void load_database ();
+// Saves individual thread into the file and invokes DFS saving for subthreads
+void save_thread (FILE *fptr, thread* thr, int depth);
+
+// Loads database from the file and returns the pointer to the root of it
+thread* load_database ();
+// Helper function to extract current depth from line
+int get_depth (FILE *fptr);
+// Helper function to extract content
+void get_content (FILE *fptr, char (*content)[1024]);
+// Helper function to extract author
+void get_author (FILE *fptr, char (*author)[32]);
 
 #endif
